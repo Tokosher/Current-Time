@@ -55,8 +55,8 @@ class Time {
                     this.pDate.innerText = template[1] + '/' + template[0] + '/' + template[2];
                 }, 1000);
             } else {
-                clearInterval(this.inter);
-                this._changeTime();
+                clearInterval(this.interDate);
+                this.interDate = setInterval(this._changeTime.bind(this), 1000);
             }
 
             if(this.pTime.innerText.split(':').length === 2) {
