@@ -1,36 +1,43 @@
-const MILLISECONDS_IN_SECOND = 1000;
-const SECONDS_IN_MINUTE = 60;
-const MINUTES_IN_HOURS = 60;
-const HOURS_AT_DAY = 24;
+class Time {
+    constructor(elem) {
+        this.target = elem;
 
-class Timer {
-    constructor(hours, minutes, sec, UTC) {
-        this.hours = hours;
-        this.minutes = minutes;
-        this.sec = sec;
-        this.UTC = UTC;
+        this._createParagraph();
+        this._addListeners();
+    }
+    _createParagraph() {
+        this.pTime = document.createElement('p');
+        this.pDate = document.createElement('p');
 
-        this.currentTime();
+        this.pDate.classList.add('display');
+
+        this.target.append(this.pTime,this.pDate)
     }
 
-    currentTime = () => {
-        this.changeTime();
-        setInterval(this.changeTime, 1000);
+    setTime() {
+        this._changeTime();
+        setInterval(this._changeTime.bind(this), 1000);
     };
 
-    changeTime = () => {
-            const current_hours = Math.floor((Date.now() / MILLISECONDS_IN_SECOND / SECONDS_IN_MINUTE / MINUTES_IN_HOURS % HOURS_AT_DAY));
-            const current_minutes = Math.floor((Date.now() / MILLISECONDS_IN_SECOND / SECONDS_IN_MINUTE % MINUTES_IN_HOURS));
-            const current_seconds = Math.floor(Date.now() / MILLISECONDS_IN_SECOND % SECONDS_IN_MINUTE);
+    _changeTime() {
+        let dateAndTime = new Date(Date.now());
+        dateAndTime = dateAndTime.toLocaleString().split(', ');
 
-            this.hours.value = current_hours <= 9 ? 0 + (+current_hours + this.UTC).toString() : +current_hours + this.UTC;
-            this.minutes.value = current_minutes <= 9 ? 0 + current_minutes.toString() : current_minutes;
-            this.sec.value = current_seconds <= 9 ? 0 + current_seconds.toString() : current_seconds;
+        const date = dateAndTime[0];
+        const time = dateAndTime[1];
+
+        this.pTime.innerText = time;
+        this.pDate.innerText = date;
+    }
+
+    _addListeners() {
+        this.target.addEventListener('click', () => {
+            this.pTime.classList.toggle('display');
+            this.pDate.classList.toggle('display');
+        })
     }
 }
 
-const hours = document.querySelector('#hours');
-const minutes = document.querySelector('#minutes');
-const sec = document.querySelector('#seconds');
+const time = new Time(document.querySelector('.dateTime'));
+time.setTime();
 
-const time = new Timer(hours, minutes, sec, 3);
