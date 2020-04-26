@@ -16,7 +16,7 @@ class Time {
 
     setTime() {
         this._changeTime();
-        setInterval(this._changeTime.bind(this), 1000);
+        this.inter = setInterval(this._changeTime.bind(this), 1000);
     };
 
     _changeTime() {
@@ -36,10 +36,51 @@ class Time {
 
             this.pTime.classList.toggle('display');
             this.pDate.classList.toggle('display');
-        })
+        });
+
+        this.target.addEventListener('click', e => {
+
+            if(this.pDate.innerText.split('.').length === 3) {
+                clearInterval(this.interDate);
+
+                this.interDate = setInterval(() => {
+
+                    let dateAndTime = new Date(Date.now());
+                    dateAndTime = dateAndTime.toLocaleString().split(', ');
+
+                    const date = dateAndTime[0];
+
+                    let template = date.split('.');
+
+                    this.pDate.innerText = template[1] + '/' + template[0] + '/' + template[2];
+                }, 1000);
+            } else {
+                clearInterval(this.inter);
+                this._changeTime();
+            }
+
+            if(this.pTime.innerText.split(':').length === 2) {
+                clearInterval(this.inter);
+                this.inter = setInterval(this._changeTime.bind(this), 1000);
+            } else {
+                clearInterval(this.inter);
+                this.inter = setInterval(() => {
+                    let dateAndTime = new Date(Date.now());
+                    dateAndTime = dateAndTime.toLocaleString().split(', ');
+
+                    let time = dateAndTime[1].split(':');
+                    time = time[0] + ':' + time[1];
+                    this.pTime.innerText = time;
+                }, 1000);
+            }
+
+
+
+
+
+        });
     }
 }
 
 const time = new Time(document.querySelector('.dateTime'));
 time.setTime();
-
