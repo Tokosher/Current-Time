@@ -31,7 +31,9 @@ class Time {
     }
 
     _addListeners() {
-        this.target.addEventListener('click', () => {
+        this.target.addEventListener('contextmenu', e => {
+            e.preventDefault();
+
             this.pTime.classList.toggle('display');
             this.pDate.classList.toggle('display');
         })
