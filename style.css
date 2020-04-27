@@ -4,6 +4,11 @@ p {
     font-size: 7vh;
 }
 
+div {
+    width: min-content;
+    height: min-content;
+}
+
 .dateTime {
     display: flex;
     justify-content: center;
@@ -12,8 +17,4 @@ p {
     z-index: 1;
     height: 90vh;
     width: 100vw;
-}
-
-.display {
-    display: none;
 }

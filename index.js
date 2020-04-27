@@ -5,82 +5,118 @@ class Time {
         this._createParagraph();
         this._addListeners();
     }
-    _createParagraph() {
-        this.pTime = document.createElement('p');
-        this.pDate = document.createElement('p');
 
-        this.pDate.classList.add('display');
+    rainbow() {
+        this.paragraph.addEventListener('mouseover', () => {
+            clearInterval(this.templateIdStyleInterval);
 
-        this.target.append(this.pTime,this.pDate)
+            this._randomGradientRainbow();
+            this.templateIdStyleInterval = setInterval(() =>{
+                this._randomGradientRainbow();
+            }, 500)
+        });
+
+        this.paragraph.addEventListener('mouseout', () => {
+            clearInterval(this.templateIdStyleInterval);
+
+            document.body.style.background = 'white';
+        });
     }
 
-    setTime() {
-        this._changeTime();
-        this.inter = setInterval(this._changeTime.bind(this), 1000);
-    };
+    setTime(func=this._normalTime) {
+        this._getTime();
+        func.call(this);
+        clearInterval(this.templateIdSetInterval);
 
-    _changeTime() {
-        let dateAndTime = new Date(Date.now());
-        dateAndTime = dateAndTime.toLocaleString().split(', ');
+        this.templateIdSetInterval = setInterval(() => {
+            this._getTime();
 
-        const date = dateAndTime[0];
-        const time = dateAndTime[1];
+            func.call(this);
+            this.currentValueP = this.paragraph.innerText;
+        }, 1000);
 
-        this.pTime.innerText = time;
-        this.pDate.innerText = date;
+        this.currentValueP = this.paragraph.innerText;
+    }
+
+    _normalDate() {
+        this.paragraph.innerText = this.date;
+    }
+
+    _normalTime() {
+        this.paragraph.innerText = this.time;
+    }
+
+    _americanDate() {
+        this.paragraph.innerText = this.americanDate;
+    }
+
+    _shortTime() {
+        this.paragraph.innerText = this.timeHoursAndMinutes;
+    }
+
+    _createParagraph() {
+        this.paragraph = document.createElement('p');
+
+        this.target.append(this.paragraph);
+    }
+
+    _getTime() {
+        this.dateTime = new Date();
+        this.time = this.dateTime.toLocaleTimeString();
+        this.date = this.dateTime.toLocaleDateString();
+
+        this.timeHoursAndMinutes = this.dateTime.toLocaleTimeString('nu',{hours: '2-digits', minutes: '2-digits'});
+        this.timeHoursAndMinutes = this.timeHoursAndMinutes.split(':');
+        this.timeHoursAndMinutes = this.timeHoursAndMinutes[0] + ':' + this.timeHoursAndMinutes[1];
+            this.americanDate =  this.dateTime.toLocaleDateString('en-US', {year: "2-digit", month: "2-digit", day: "2-digit"});
     }
 
     _addListeners() {
-        this.target.addEventListener('contextmenu', e => {
+        this.paragraph.addEventListener('contextmenu', e => { // right click
+
             e.preventDefault();
 
-            this.pTime.classList.toggle('display');
-            this.pDate.classList.toggle('display');
+            if(this.currentValueP === this.time || this.currentValueP === this.timeHoursAndMinutes) {
+                this.setTime(this._normalDate);
+            } else if(this.currentValueP === this.date || this.currentValueP === this.americanDate) {
+                this.setTime(this. _normalTime);
+            } else console.log("ERROR CONTEXTMENU");
         });
 
-        this.target.addEventListener('click', e => {
-
-            if(this.pDate.innerText.split('.').length === 3) {
-                clearInterval(this.interDate);
-
-                this.interDate = setInterval(() => {
-
-                    let dateAndTime = new Date(Date.now());
-                    dateAndTime = dateAndTime.toLocaleString().split(', ');
-
-                    const date = dateAndTime[0];
-
-                    let template = date.split('.');
-
-                    this.pDate.innerText = template[1] + '/' + template[0] + '/' + template[2];
-                }, 1000);
-            } else {
-                clearInterval(this.interDate);
-                this.interDate = setInterval(this._changeTime.bind(this), 1000);
+       this.paragraph.addEventListener('click', () => { // left click
+            switch(this.currentValueP) {
+                case this.time:
+                    this.setTime(this._shortTime);
+                    break;
+                case this.timeHoursAndMinutes:
+                    this.setTime(this._normalTime);
+                    break;
+                case this.date:
+                    this.setTime(this._americanDate);
+                    break;
+                case this.americanDate:
+                    this.setTime(this._normalDate);
+                    break;
             }
-
-            if(this.pTime.innerText.split(':').length === 2) {
-                clearInterval(this.inter);
-                this.inter = setInterval(this._changeTime.bind(this), 1000);
-            } else {
-                clearInterval(this.inter);
-                this.inter = setInterval(() => {
-                    let dateAndTime = new Date(Date.now());
-                    dateAndTime = dateAndTime.toLocaleString().split(', ');
-
-                    let time = dateAndTime[1].split(':');
-                    time = time[0] + ':' + time[1];
-                    this.pTime.innerText = time;
-                }, 1000);
-            }
-
-
-
-
-
         });
+    }
+
+    _shuffle(rainbow) { // shuffle array
+        for (let i = rainbow.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rainbow[i], rainbow[j]] = [rainbow[j], rainbow[i]];
+        }
+        return rainbow;
+    }
+
+    _randomGradientRainbow(rainbow = ['red', 'orange', 'yellow', 'green', 'blue', 'deepskyblue', 'purple']) {
+        rainbow = this._shuffle(rainbow);
+        rainbow = rainbow.join(', ');
+
+        document.body.style.background = `linear-gradient(${rainbow}) fixed`;
     }
 }
 
 const time = new Time(document.querySelector('.dateTime'));
 time.setTime();
+time.rainbow();
